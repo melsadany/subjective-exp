@@ -79,3 +79,33 @@ t3<- t %>%
                                                                            plot.title = element_text(size=8))
 patchwork::wrap_plots(t1,t2,t0, widths = c(3,2,5))
 ################################################################################
+################################################################################
+# chatgpt3 embeddings
+library(rgpt3)
+gpt3_authenticate("/Dedicated/jmichaelson-wdata/msmuhammad/workbench/openAI/access_key.txt")
+gpt3_test_completion()
+tmp <- gpt3_embeddings(input_var = data$comments[1:10], 
+                      id_var = rownames(data))
+
+library(httr)
+api_key <- "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"
+# API endpoint
+api_url <- "https://api.openai.com/v1/engines/text-davinci-002/completions"
+# Prepare the request payload
+payload <- list(
+  prompt = text_data,
+  max_tokens = 0,
+  stop = "",
+  temperature = 0
+)
+
+# Make the API request with API key in headers
+response <- POST(
+  url = api_url,
+  body = payload,
+  add_headers(Authorization = paste("Bearer", api_key)),
+  encode = "json"
+)
+# Extract the embeddings from the response
+# embeddings <- content(response)$choices$[["0"]]$logits
+################################################################################
