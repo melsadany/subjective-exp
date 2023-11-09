@@ -1,0 +1,18 @@
+#! /bin/bash
+#$ -cwd
+#$ -q JM,UI,CCOM
+#$ -pe smp 56
+#$ -N pre-reddit-reformatting
+#$ -o logs/$JOB_NAME.$TASK_ID.log
+#$ -j y
+#$ -ckpt user
+#$ -t 1-67
+
+conda activate tximpute2
+
+## ID =1 if doing comments; 2 if doing submissions
+## you'll need 67 array jobs for comments, and 73 for submissions
+ID=1
+
+RSCRIPT_F=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/src/00_pre-reddit-reformatting.R
+Rscript $RSCRIPT_F ${ID} ${SGE_TASK_ID}
