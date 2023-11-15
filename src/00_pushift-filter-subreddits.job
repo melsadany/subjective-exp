@@ -2,7 +2,7 @@
 #$ -cwd
 #$ -q JM
 #$ -pe smp 80
-#$ -N pushift-filter-subreddits
+#$ -N pushift-filter-subreddits_submissions
 #$ -o logs/$JOB_NAME.log
 #$ -j y
 #$ -ckpt user
@@ -16,5 +16,5 @@ mkdir -p ${TMP}
 rm -rf ${TMP}
 mkdir -p ${TMP}
 
-python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field subreddit --value_list /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/mental-health-subreedit-list --working ${TMP} --processes 25
+python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/submissions --field subreddit --value_list /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/mental-health-subreedit-list --working ${TMP} --processes 25
 

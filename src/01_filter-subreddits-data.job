@@ -1,0 +1,17 @@
+#! /bin/bash
+#$ -cwd
+#$ -q all.q
+#$ -pe smp 56
+#$ -l 768G
+#$ -N filter-subreddits-data
+#$ -o logs/$JOB_NAME.$TASK_ID.log
+#$ -j y
+#$ -ckpt user
+#$ -t 5
+
+conda activate tximpute2
+
+PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp
+cd ${PROJECT_DIR}
+
+Rscript ${PROJECT_DIR}/src/01_filter-subreddits-data.R ${SGE_TASK_ID}
