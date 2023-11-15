@@ -2,3 +2,5 @@ data/
 archive/
 logs/
 src/.env
+src/04_openai-embeddings.py
+
