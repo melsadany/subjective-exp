@@ -27,6 +27,7 @@ all.users <- foreach(i = 1:nrow(files2), .combine = full_join) %dopar% {
            year_created = year(date_created),
            month_created = month(date_created), 
            day_created = day(date_created))
+  print(paste0("Done reading user index: ", i, " w ", nrow(df), " comments"))
   return(df)
 }
 write_rds(all.users, paste0(project.dir, "/all-users-combined.rds"))
@@ -98,6 +99,11 @@ plot_user_history <- function(i,
     labs(x = "date of comment",
          y = "",
          caption = "NRC Word-Emotion Association Lexicon using syuzhet")
+  # df %>%
+  #   ggplot(aes(x=date_created, y =score)) +
+  #   # geom_line() +
+  #   geom_point(size = 0.4, alpha=0.3)+
+  #   geom_smooth(method = "loess")
   p <- patchwork::wrap_plots(patchwork::wrap_plots(p1,p2,p4, ncol = 1), 
                              patchwork::plot_spacer(), 
                              p3, ncol = 3, widths = c(2.5,0.3,1.3))
