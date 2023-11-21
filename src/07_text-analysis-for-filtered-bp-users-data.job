@@ -1,14 +1,14 @@
 #! /bin/bash
 #$ -cwd
 #$ -q JM,UI,CCOM
-#$ -pe smp 4
+#$ -pe smp 40
 #$ -N text-analysis-for-filtered-bp-users-data
 #$ -o logs/$JOB_NAME.$TASK_ID.log
 #$ -j y
 #$ -m a
 #$ -M muhammad-elsadany@uiowa.edu
 #$ -ckpt user
-#$ -t 1-9896
+#$ -t 9062
 
 conda activate tximpute2
 
