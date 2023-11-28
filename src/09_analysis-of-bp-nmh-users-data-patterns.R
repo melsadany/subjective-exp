@@ -48,8 +48,8 @@ subreddits.tot <- users.summ.all %>%
   dplyr::summarise(tot_users = sum(users_count)) %>%
   pivot_wider(names_prefix = "bp_", names_from = "bp", values_from = "tot_users", values_fill = 0) %>%
   mutate(tot_users = sum(bp_0, bp_1),
-         bp_0_per = bp_0/tot_users,
-         bp_1_per = bp_1/tot_users)
+         bp_0_per = (bp_0/tot_users)*100,
+         bp_1_per = (bp_1/tot_users)*100)
 order <- subreddits.tot %>% 
   filter(tot_users > 1000) %>%
   arrange(desc(bp_1_per)) %>%
@@ -61,7 +61,7 @@ p1 <- subreddits.tot %>%
   mutate(subreddit = factor(subreddit, levels = order$subreddit)) %>%
   ggplot(aes(x=subreddit, y = users_percentage, fill = bp)) +
   geom_bar(stat = "identity") +
-  geom_hline(yintercept = 0.5, color = "black", linetype = 2) +
+  geom_hline(yintercept = 50, color = "black", linetype = 2) +
   scale_fill_manual(values = redblu.col) +
   labs(y = "percentage of users")
 p2 <- subreddits.tot %>% 
@@ -77,8 +77,8 @@ p3 <- subreddits.tot %>%
   geom_bar(stat = "identity", show.legend = F) +
   scale_fill_manual(values = redblu.col) +
   labs(y = "number of users", x="")
-ggsave(patchwork::wrap_plots(p2,p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit.png", 
-       width = 24, height = 14, units = "in", dpi = 320, bg = "white")
+ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit.png", 
+       width = 24, height = 9, units = "in", dpi = 320, bg = "white")
 ################################################################################
 
 
