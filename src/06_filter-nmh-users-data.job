@@ -1,0 +1,18 @@
+#! /bin/bash
+#$ -cwd
+#$ -q JM,UI,CCOM
+#$ -pe smp 4
+#$ -N filter-nmh-users-data
+#$ -o logs/$JOB_NAME.$TASK_ID.log
+#$ -j y
+#$ -m a
+#$ -M muhammad-elsadany@uiowa.edu
+#$ -ckpt user
+#$ -t 1-10000
+
+conda activate tximpute2
+
+PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp
+cd ${PROJECT_DIR}
+
+Rscript ${PROJECT_DIR}/src/06_filter-nmh-users-data.R ${SGE_TASK_ID}

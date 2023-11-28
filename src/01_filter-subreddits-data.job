@@ -1,13 +1,12 @@
 #! /bin/bash
 #$ -cwd
-#$ -q all.q
-#$ -pe smp 56
-#$ -l 768G
+#$ -q UI-HM
+#$ -pe smp 80
 #$ -N filter-subreddits-data
 #$ -o logs/$JOB_NAME.$TASK_ID.log
 #$ -j y
 #$ -ckpt user
-#$ -t 5
+#$ -t 4-5
 
 conda activate tximpute2
 

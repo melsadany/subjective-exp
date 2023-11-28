@@ -1,5 +1,5 @@
 ################################################################################
-#                         analysis for bp users comments                       #
+#                       history plots for users comments                       #
 ################################################################################
 rm(list = ls())
 gc()
@@ -12,10 +12,17 @@ project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
 reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/filtered/text-analyzed"
-files2 <- data.frame(author = list.files(path = reddit.dir, pattern = ".rds")) %>%
+files.bp <- data.frame(author = list.files(path = reddit.dir, pattern = "_comments.rds")) %>%
   mutate(file = paste0(reddit.dir,"/", author)) %>%
   mutate(author = sub("_comments.rds.rds", "", author)) %>%
-  mutate(size = file.size(file))
+  mutate(size = file.size(file),
+         cat = "bp")
+files.nmh <- data.frame(author = list.files(path = sub("bp_users", "nmh_users", reddit.dir), pattern = "_comments.rds")) %>%
+  mutate(file = paste0(sub("bp_users", "nmh_users", reddit.dir),"/", author)) %>%
+  mutate(author = sub("_comments.rds.rds", "", author)) %>%
+  mutate(size = file.size(file),
+         cat = "nmh")
+files.bp.nmh <- rbind(files.bp, files.nmh)
 ####
 # IDAS run
 # registerDoMC(cores = 20)
@@ -38,9 +45,11 @@ colfunc <- colorRampPalette(redblu.col)
 # colfunc(10)
 # make a function to plot the histogram for users by using their rownumber/index as an input
 plot_user_history <- function(i, 
-                              save_fig = F) {
-  user <- files2$author[i]
-  f <- files2$file[i]
+                              save_fig = F,
+                              fig_path = "",
+                              files_meta) {
+  user <- files_meta$author[i]
+  f <- files_meta$file[i]
   # read in the rds file
   df <- read_rds(f) %>%
     mutate(date_created = as_date(timestamp_created)
@@ -209,19 +218,20 @@ plot_user_history <- function(i,
                              ncol = 6, widths = c(1,0.3,1,1,1,3))
   if (save_fig == T) {
     # dev.off()
-    png(filename = paste0(project.dir, 
-                          "/figs/users-history/user-", user, "_history.png"), 
+    if (length(fig_path)>2) {
+      fig.p <- fig_path
+    }else {
+      fig.p <- paste0(project.dir, 
+                      "/figs/users-history/", files_meta$cat[i],"_user-", user, "_history.png")
+    }
+    png(filename = fig.p, 
         width = 19, height = 13, units = "in", res = 360);print(p);dev.off()
   }
   print(p)
 }
 
-plot_user_history(i= 5401)
+plot_user_history(i= 5401, save_fig = T, files_meta = files.bp.nmh)
 
 
-
-df %>%
-  ggplot(aes(x=date_created)) +
-  geom_density()
 
 ################################################################################

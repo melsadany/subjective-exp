@@ -19,7 +19,8 @@ project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
 reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/filtered"
-files2 <- data.frame(author = list.files(path = reddit.dir, pattern = ".rds")) %>%
+system(paste0("mkdir -p ", reddit.dir, "/text-analyzed"))
+files2 <- data.frame(author = list.files(path = reddit.dir, pattern = "_comments.rds")) %>%
   mutate(file = paste0(reddit.dir,"/", author)) %>%
   mutate(author = sub("_comments.rds", "", author))
 f <- files2$file[i]
