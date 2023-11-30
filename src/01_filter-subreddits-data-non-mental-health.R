@@ -29,7 +29,7 @@ system(paste0("mkdir -p ", sub("subreddits", "subreddits/authors-summary", reddi
 write_rds(authors.summary, file = paste0(sub("subreddits", "subreddits/authors-summary", sub(".zst", "", f), ignore.case = F), ".rds"))
 print(paste0("Done saving authors summary for: ", f))
 df2 <- df %>%
-  filter(!(grepl("deleted", body) | grepl("deleted", author)),
+  filter(!(grepl("\\[deleted]", body) | grepl("\\[deleted]", author)),
          author %in% authors.summary$author[authors.summary$count>10]) %>% 
   distinct(.keep_all = T) %>%
   mutate(timestamp_created = as_datetime(as.numeric(created_utc)),

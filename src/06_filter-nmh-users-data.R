@@ -30,7 +30,7 @@ authors.summary <- df %>%
 write_rds(authors.summary, file = paste0(sub("nmh_users_data", "nmh_users_data/authors-summary", sub(".zst", "", f), ignore.case = F), ".rds"))
 print(paste0("Done saving authors summary for: ", f))
 df2 <- df %>%
-  filter(!(grepl("deleted", body))) %>% 
+  filter(!(grepl("\\[deleted]", body))) %>% 
   distinct(.keep_all = T) %>%
   mutate(timestamp_created = as_datetime(as.numeric(created_utc)),
          # timestamp_approved = as_datetime(as.numeric(approved_at_utc)),
