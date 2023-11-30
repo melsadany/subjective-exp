@@ -200,6 +200,7 @@ users.stats.pre <- foreach(i = c(1:18300), .combine = rbind) %dopar% {
     var <- colnames(tmp2)[j]
     if (min(tmp2[,j]) == max(tmp2[,j])) {
       acv.t <- data.frame(sd = 0,
+                          mean = 0,
                           matrix(ncol = 109, nrow = 1, 0))
       } else {
         acv.t <- data.frame(sd = sd(tmp2[,j]),
@@ -233,17 +234,6 @@ p1 <- users.stats %>%
   ggh4x::facet_grid2(cols = vars(var), rows = vars(cat), scales = "free", space = "free") +
   scale_color_manual(values = redblu.col)
 p2 <- users.stats %>%
-  pivot_longer(starts_with("sd"), names_to = "sd_var", values_to = "sd") %>%
-  mutate(var = sub("sd_", "", sd_var),
-         var = sub("\\.[0-9]+", "", var)) %>%
-  ggplot(aes(x=cat, y=sd, fill = cat)) +
-  geom_violin() +
-  geom_boxplot(width = 0.4, show.legend = F) +
-  ggpubr::stat_compare_means(size = 2.5) +
-  facet_wrap(~var, nrow = 1, scales = "free") +
-  scale_fill_manual(values = redblu.col) +
-  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
-p3 <- users.stats %>%
   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
   mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
   mutate(var = sub("ac_", "", ac_var),
@@ -252,19 +242,52 @@ p3 <- users.stats %>%
   dplyr::summarise(avg_acf = mean(acf)) %>%
   ggplot(aes(x=cat, y=avg_acf, fill = cat)) +
   geom_violin() +
-  geom_boxplot(width = 0.4, show.legend = F) +
   ggpubr::stat_compare_means(size = 2.5) +
   facet_wrap(~var, nrow = 1, scales = "free") +
   scale_fill_manual(values = redblu.col) +
+  geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
-patchwork::wrap_plots(p1,p3,p2,nrow = 3, heights = c(3,1,1))
+p3 <- users.stats %>%
+  pivot_longer(starts_with("sd"), names_to = "sd_var", values_to = "sd") %>%
+  mutate(var = sub("sd_", "", sd_var),
+         var = sub("\\.[0-9]+", "", var)) %>%
+  ggplot(aes(x=cat, y=sd, fill = cat)) +
+  geom_violin() +
+  ggpubr::stat_compare_means(size = 2.5) +
+  facet_wrap(~var, nrow = 1, scales = "free") +
+  scale_fill_manual(values = redblu.col) +
+  geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
+  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
+p4 <- users.stats %>%
+  pivot_longer(starts_with("mean"), names_to = "mean_var", values_to = "mean") %>%
+  mutate(var = sub("mean_", "", mean_var),
+         var = sub("\\.[0-9]+", "", var)) %>%
+  ggplot(aes(x=cat, y=mean, fill = cat)) +
+  geom_violin() +
+  ggpubr::stat_compare_means(size = 2.5) +
+  facet_wrap(~var, nrow = 1, scales = "free") +
+  scale_fill_manual(values = redblu.col) +
+  geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
+  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
+patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
+ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid.png", 
+       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
+ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid.png", 
+       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
+ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid.png", 
+       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
 ################################################################################
 users.stats %>%
-  ggplot(aes(x=cat, fill = cat)) +
-  geom_bar(width = 0.4, show.legend = F) +
+  group_by(cat) %>%
+  dplyr::summarise(count = n()) %>%
+  ggplot(aes(x=cat, y=count, fill = cat, label = count)) +
+  geom_bar(width = 0.4, stat = "identity", show.legend = F) +
   scale_fill_manual(values = redblu.col) +
+  geom_text(size = 4) +
   labs(x="", y="number of users") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
+ggsave(filename = "figs/count-of-users.png",
+       width = 4.1, height = 4.1, units = "in", bg = "white")
 users.stats %>%
   ggplot(aes(x=cat, y=sd_syuzhet_sentiment, fill = cat)) +
   geom_violin(show.legend = F, width = 0.4) +
@@ -273,7 +296,8 @@ users.stats %>%
   ggpubr::stat_compare_means(size = 4) +
   labs(x="", y="standard deviation of syuzhet sentiment score")+
   theme(axis.text.x.bottom = element_text(angle = 0))
-  
+ggsave(filename = "figs/boxplot_sd-of-syuzhet-sentiment_bp-nmh_covid.png",
+       width = 4.1, height = 4.1, units = "in", bg = "white")  
 
 
 ################################################################################
