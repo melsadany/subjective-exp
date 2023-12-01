@@ -1,0 +1,20 @@
+#! /bin/bash
+#$ -cwd
+#$ -q JM,UI
+#$ -pe smp 80
+#$ -N pushift-filter-subreddits2
+#$ -o logs/$JOB_NAME.log
+#$ -j y
+#$ -ckpt user
+
+conda activate tximpute2
+
+PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives
+cd ${PROJECT_DIR}
+TMP=${PROJECT_DIR}/../tmp_$JOB_NAME
+mkdir -p ${TMP}
+rm -rf ${TMP}
+mkdir -p ${TMP}
+
+python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field subreddit --value_list /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/subreedits-list2 --working ${TMP} --processes 50
+

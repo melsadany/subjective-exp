@@ -1,6 +1,6 @@
 #! /bin/bash
 #$ -cwd
-#$ -q UI-HM
+#$ -q JM-GPU
 #$ -pe smp 80
 #$ -N filter-subreddits-data
 #$ -o logs/$JOB_NAME.$TASK_ID.log

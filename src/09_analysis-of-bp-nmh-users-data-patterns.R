@@ -101,7 +101,7 @@ all.dates <- data.frame(date_created = seq(as.Date("2020-03-01"), as.Date("2022-
 # decide if just doing covid or not
 just_covid = T
 # users.sd <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
-users.stats.pre <- foreach(i = c(1:18300), .combine = rbind) %dopar% {
+users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
   user <- users$user[i]
   df <- read_rds(users$file[i]) %>%
     mutate(date_created = as_date(timestamp_created),
@@ -176,12 +176,17 @@ users.stats.pre <- foreach(i = c(1:18300), .combine = rbind) %dopar% {
                      mutate(date_created=as_date(Var1))) %>%
     mutate(Freq = ifelse(is.na(Freq), 0, Freq)) %>%
     select(-Var1)
+  tmp.weeks <- tmp %>%
+    mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))) %>%
+    group_by(week) %>%
+    dplyr::summarise(count = sum(Freq))
   t <- data.frame(user = users$user[i],
                   cat = users$cat[i],
                   sd_comment_freq = sd(table(df$date_created)),
                   mean_comment_freq = mean(table(df$date_created)),
                   # ac = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf))
-                  ac_comment_freq = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf)))
+                  ac_comment_freq = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf)),
+                  fft_comment_freq = t(fft(tmp.weeks$count)))
   tmp2 <- left_join(all.dates,
                     df.tn %>% 
                       mutate_at(.vars = vars(nrc.positive, nrc.negative, nrc.anger, nrc.anticipation, nrc.disgust,
@@ -196,6 +201,13 @@ users.stats.pre <- foreach(i = c(1:18300), .combine = rbind) %dopar% {
                            "readability", 
                            starts_with("nrc")), 
               .funs = function(x) ifelse(is.na(x), 0, x))
+  tmp2.weeks <- tmp2 %>%
+    mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))) %>%
+    group_by(week) %>%
+    dplyr::summarise_at(.vars = vars(ends_with("_sentiment"),
+                                     "readability", 
+                                     starts_with("nrc")),
+                        .funs = function(x) mean(x))
   acv <- foreach (j = 2:ncol(tmp2), .combine = cbind) %dopar% {
     var <- colnames(tmp2)[j]
     if (min(tmp2[,j]) == max(tmp2[,j])) {
@@ -220,8 +232,8 @@ users.stats.pre <- foreach(i = c(1:18300), .combine = rbind) %dopar% {
 # write_rds(users.stats.pre, "data/derivatives/all-users/combined-covid-valid-users.rds")
 # users.stats.pre <- read_rds("data/derivatives/all-users/combined-covid-valid-users.rds")
 ######
-users.stats <- users.stats.pre %>%
-  filter(q_valid == T)
+users.stats <- users.stats.pre
+# users.stats <- users.stats.pre %>% filter(q_valid == T)
 
 p1 <- users.stats %>%
   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
@@ -269,13 +281,19 @@ p4 <- users.stats %>%
   scale_fill_manual(values = redblu.col) +
   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
-patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
-ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid.png", 
+p <- patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
+ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid.png",
+# ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid_q-valid.png", 
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid.png", 
+ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid.png",
+# ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid_q-valid.png", 
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid.png", 
+ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid.png",
+# ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid_q-valid.png", 
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
+ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid.png",
+# ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid_q-valid.png", 
+       width = 24.7, height = 20, units = "in", dpi = 320, bg = "white")
 ################################################################################
 users.stats %>%
   group_by(cat) %>%
@@ -287,6 +305,7 @@ users.stats %>%
   labs(x="", y="number of users") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
 ggsave(filename = "figs/count-of-users.png",
+# ggsave(filename = "figs/count-of-users_q-valid.png",
        width = 4.1, height = 4.1, units = "in", bg = "white")
 users.stats %>%
   ggplot(aes(x=cat, y=sd_syuzhet_sentiment, fill = cat)) +
