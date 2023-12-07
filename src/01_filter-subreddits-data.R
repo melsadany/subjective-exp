@@ -12,7 +12,7 @@ args <- commandArgs(trailingOnly = T)
 project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
-reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits"
+reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits2"
 files2 <- list.files(path = reddit.dir, pattern = ".zst", full.names = T)
 f <- files2[as.numeric(args[1])]
 
@@ -25,7 +25,9 @@ print(paste0("Done reding zst file for: ", f))
 authors.summary <- df %>%
   group_by(author) %>%
   dplyr::summarise(count = n())
-write_rds(authors.summary, file = paste0(sub("subreddits", "subreddits/authors-summary", sub(".zst", "", f), ignore.case = F), ".rds"))
+system(paste0("mkdir -p ", reddit.dir, "/authors-summary"))
+system(paste0("mkdir -p ", reddit.dir, "/filtered"))
+write_rds(authors.summary, file = paste0(sub("subreddits2", "subreddits2/authors-summary", sub(".zst", "", f), ignore.case = F), ".rds"))
 print(paste0("Done saving authors summary for: ", f))
 df2 <- df %>%
   filter(!(grepl("\\[deleted]", body) | grepl("\\[deleted]", author)),
@@ -43,7 +45,7 @@ df2 <- df %>%
          author_flair_text, collapsed, collapsed_reason, collapsed_reason_code)
 
 if (nrow(df2)>1) {
-  write_rds(df2, file = paste0(sub("subreddits", "subreddits/filtered", sub(".zst", "", f), ignore.case = F), ".rds"))
+  write_rds(df2, file = paste0(sub("subreddits2", "subreddits2/filtered", sub(".zst", "", f), ignore.case = F), ".rds"))
 }
 # pdssave(df2, file = paste0(sub("subreddits", "subreddits/filtered", sub(".zst", "", f), ignore.case = F), ".rds"))
 print(paste0("Done filtering data for: ", f))

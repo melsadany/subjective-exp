@@ -281,6 +281,18 @@ p4 <- users.stats %>%
   scale_fill_manual(values = redblu.col) +
   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
+p5 <- users.stats %>%
+  pivot_longer(starts_with("fft"), names_to = "fft_var", values_to = "fft") %>%
+  mutate(var = sub("fft_", "", fft_var),
+         var = sub("\\.[0-9]+", "", var)) %>%
+  mutate(fft = Re(fft)) %>%
+  ggplot(aes(x=cat, y=fft, fill = cat)) +
+  geom_violin() +
+  ggpubr::stat_compare_means(size = 2.5) +
+  facet_wrap(~var, nrow = 1, scales = "free") +
+  scale_fill_manual(values = redblu.col) +
+  geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
+  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
 p <- patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
 ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid.png",
 # ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid_q-valid.png", 
@@ -290,6 +302,9 @@ ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid.png",
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
 ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid.png",
 # ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid_q-valid.png", 
+       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
+ggsave(p5,filename = "figs/boxplot_fft-of-all_bp-nmh_covid.png",
+# ggsave(p5,filename = "figs/boxplot_fft-of-all_bp-nmh_covid_q-valid.png", 
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
 ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid.png",
 # ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid_q-valid.png", 

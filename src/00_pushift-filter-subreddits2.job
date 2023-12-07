@@ -1,6 +1,6 @@
 #! /bin/bash
 #$ -cwd
-#$ -q JM,UI
+#$ -q JM-GPU
 #$ -pe smp 80
 #$ -N pushift-filter-subreddits2
 #$ -o logs/$JOB_NAME.log
@@ -16,5 +16,5 @@ mkdir -p ${TMP}
 rm -rf ${TMP}
 mkdir -p ${TMP}
 
-python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field subreddit --value_list /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/subreedits-list2 --working ${TMP} --processes 50
+python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field subreddit --value_list /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/subreedits-list22 --working ${TMP} --processes 70
 
