@@ -1,18 +1,18 @@
 #! /bin/bash
 #$ -cwd
-#$ -q JM,UI,CCOM
+#$ -q JM-GPU
 #$ -pe smp 4
-#$ -N filter-bp-users-data
+#$ -N text-embeddings-for-covid-valid-no-q-all-users
 #$ -o logs/$JOB_NAME.$TASK_ID.log
 #$ -j y
 #$ -m a
 #$ -M muhammad-elsadany@uiowa.edu
 #$ -ckpt user
-#$ -t 1-22693
+#$ -t 1-26118
 
 conda activate tximpute2
 
 PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp
 cd ${PROJECT_DIR}
 
-Rscript ${PROJECT_DIR}/src/06_filter-bp-users-data.R ${SGE_TASK_ID}
+Rscript ${PROJECT_DIR}/src/07_text-embeddings-for-covid-valid-no-q-all-users.R ${SGE_TASK_ID}

@@ -2,17 +2,17 @@
 #$ -cwd
 #$ -q JM,UI,CCOM
 #$ -pe smp 40
-#$ -N text-analysis-for-filtered-bp-users-data
+#$ -N text-analysis-for-covid-valid-no-q-nmh-users
 #$ -o logs/$JOB_NAME.$TASK_ID.log
 #$ -j y
 #$ -m a
 #$ -M muhammad-elsadany@uiowa.edu
 #$ -ckpt user
-#$ -t 9062
+#$ -t 1-18243
 
 conda activate tximpute2
 
 PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp
 cd ${PROJECT_DIR}
 
-Rscript ${PROJECT_DIR}/src/07_text-analysis-for-filtered-bp-users-data.R ${SGE_TASK_ID}
+Rscript ${PROJECT_DIR}/src/07_text-analysis-for-covid-valid-no-q-nmh-users.R ${SGE_TASK_ID}

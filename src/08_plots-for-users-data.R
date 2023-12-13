@@ -11,16 +11,18 @@ source("/Dedicated/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
 project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
-reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/filtered/text-analyzed"
-files.bp <- data.frame(author = list.files(path = reddit.dir, pattern = "_comments.rds")) %>%
-  mutate(file = paste0(reddit.dir,"/", author)) %>%
-  mutate(author = sub("_comments.rds.rds", "", author)) %>%
-  mutate(size = file.size(file),
+reddit.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_no-q/text-analyzed"
+files.bp <- data.frame(author = list.files(path = reddit.dir, pattern = "bp_user-")) %>%
+  mutate(file = paste0(reddit.dir,"/", author),
+         author = sub("\\.rds", "", author),
+         author = sub("bp_user-", "", author),
+         size = file.size(file),
          cat = "bp")
-files.nmh <- data.frame(author = list.files(path = sub("bp_users", "nmh_users", reddit.dir), pattern = "_comments.rds")) %>%
-  mutate(file = paste0(sub("bp_users", "nmh_users", reddit.dir),"/", author)) %>%
-  mutate(author = sub("_comments.rds.rds", "", author)) %>%
-  mutate(size = file.size(file),
+files.nmh <- data.frame(author = list.files(path = reddit.dir, pattern = "nmh_user-")) %>%
+  mutate(file = paste0(reddit.dir,"/", author),
+         author = sub("\\.rds", "", author),
+         author = sub("nmh_user-", "", author),
+         size = file.size(file),
          cat = "nmh")
 files.bp.nmh <- rbind(files.bp, files.nmh)
 ####
@@ -49,51 +51,20 @@ plot_user_history <- function(i,
                               save_fig = F,
                               fig_path = "",
                               files_meta,
-                              all = F,
-                              just_covid = F,
+                              all = F, # this is to indicate if yo plot all figure types
                               mh_subreddits = readLines("/Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/mental-health-subreedit-list")) {
   user <- files_meta$author[i]
   f <- files_meta$file[i]
   # read in the rds file
   df <- read_rds(f) %>%
     mutate(date_created = as_date(timestamp_created),
+           week_day =weekdays(date_created),
            year_created = year(date_created),
            month_created = month(date_created),
-           day_created = day(date_created))%>%
+           day_created = day(date_created)) %>%
     mutate(Q = ifelse(month_created %in% c(1:3), 1, 
                       ifelse(month_created %in% c(4:6), 2,
                              ifelse(month_created %in% c(7:9), 3, 4))))
-  if (just_covid==T) {
-    covid.valid <- df %>%
-      group_by(year_created, month_created) %>%
-      dplyr::summarise(count = n()) %>%
-      filter(year_created <= 2020 & month_created <= 2 | year_created >= 2022 & month_created >= 4) %>%
-      mutate(status = ifelse(year_created <= 2020, "before", "after"))
-    covid.valid.d <- ifelse(length(unique(covid.valid$status))==2, T, F)
-    Q.valid <- df %>% 
-      group_by(year_created, Q) %>%
-      dplyr::summarise(count = n())
-    all.q <- data.frame(year_created = rep(c(2020:2022), each = 4),
-                        Q = rep(c(1:4),3))
-    c <- right_join(Q.valid, all.q) %>% 
-      mutate(count = ifelse(is.na(count), 0, count))
-    Q.valid.d <- ifelse(all(c$count>0),T,F)
-    if (covid.valid.d) {
-      df <- df %>%
-        filter(date_created >= as.Date("2020-03-01") & date_created <= as.Date("2022-03-31"))
-        # filter((year_created > 2020 & year_created <= 2022) | 
-        #          (year_created == 2020 & month_created >= 3) | 
-        #          (year_created == 2022 & month_created <= 3))
-        # filter(year_created >= 2020 && month_created >= 3) %>%
-        # filter(year_created <= 2022 && month_created <= 3)
-      print(paste0("This user is valid for covid-period criteria and ",
-                   ifelse(Q.valid.d == T, "valid", "not valid"),
-                   " for the comment-per-quarter criteria"))
-    }else{
-      print("This user is not valid for covid-period criteria")
-      # return()
-    }
-  }
   
   # normalize NRC words count
   df2 <- df %>% 
@@ -143,6 +114,22 @@ plot_user_history <- function(i,
          #                  "\n\t1\t3\t5\t7\t9",
          #                  "\n\t2\t4\t6\t8\t10")
     ) + 
+    guides(fill = guide_legend(ncol = 4)) +
+    theme(legend.key.size = unit(0.35, "cm"), 
+          legend.text = element_text(size = 7))
+  
+  # histogram showing total number of comments per hour of all times, and filling color based on subreddit faceted by weekday
+  p1_n2 <- df %>%
+    mutate(subreddit_f = ifelse(subreddit %in% top.subreddits$subreddit[1:9], subreddit, "other"),
+           subreddit_f = factor(subreddit_f, levels = c(top.subreddits$subreddit[1:9], "other"))) %>%
+    mutate(day_time = strptime(strftime(timestamp_created, format = "%H:%M:%S"), format = "%H:%M:%S")) %>%
+    mutate(day_hour = lubridate::hour(day_time)) %>%
+    ggplot(aes(x=day_hour, fill = subreddit_f)) +
+    geom_histogram(bins = 24) +
+    facet_wrap(~week_day, ncol = 1) +
+    scale_fill_manual(values = ten.colors, name = "") +
+    labs(y="number of comments", 
+         x = "hour of the day") + 
     guides(fill = guide_legend(ncol = 4)) +
     theme(legend.key.size = unit(0.35, "cm"), 
           legend.text = element_text(size = 7))
@@ -302,18 +289,20 @@ plot_user_history <- function(i,
     p <- patchwork::wrap_plots(patchwork::wrap_plots(p1,p2,p5,
                                                      ncol = 1, heights = c(0.7,1,1)),
                                patchwork::plot_spacer(), 
+                               p1_n2,
                                p6,
                                p3, p3_2,
                                p7,
-                               ncol = 6, widths = c(1,0.3,1,1,1,3))
+                               ncol = 7, widths = c(1,0.3,1,1,1,1,3))
     fig.w <- 19
     fig.h <- 13
   } else {
     p <- patchwork::wrap_plots(patchwork::wrap_plots(p1, p1_n,p2,
                                                      ncol = 1, heights = c(0.7,0.7,1)),
                                patchwork::plot_spacer(), 
+                               p1_n2,
                                p3_2,
-                               ncol = 3, widths = c(2,0.3,1))
+                               ncol = 4, widths = c(2,0.3,1,1))
     fig.w <- 9.2
     fig.h <- 9.7
   }
@@ -323,20 +312,7 @@ plot_user_history <- function(i,
     if (length(fig_path)>2) {
       fig.p <- fig_path
     }else {
-      if (just_covid == T) {
-        if (covid.valid.d == T & Q.valid.d == T) {
-          fig.prefix <- paste0(project.dir, "/figs/users-history/covid_valid_q_valid/")
-          # write_rds(df, 
-          #           file = paste0())
-        } else if (covid.valid.d == T & Q.valid.d == F) {
-          fig.prefix <- paste0(project.dir, "/figs/users-history/covid_valid_q_notvalid/")
-        } else {
-          fig.prefix <- paste0(project.dir, "/figs/users-history/covid_notvalid_q_notvalid/")
-        }
-      } else {
-        fig.prefix <- paste0(project.dir, "/figs/users-history/not-covid/")
-      }
-      
+      fig.prefix <- paste0(project.dir, "/figs/all-users/covid_valid_no-q/")
       system(paste0("mkdir -p ", fig.prefix))
       if (all==T) {
         fig.p <- paste0(fig.prefix, files_meta$cat[i],"_user-", user, "_history_all.png")
@@ -351,18 +327,45 @@ plot_user_history <- function(i,
 }
 
 plot_user_history(i= 33, 
-                  save_fig = T, all = F, just_covid = T,
+                  save_fig = T, all = F, 
                   files_meta = files.bp.nmh)
 ids <- c(1000,5401,154,33,9932,5960,1004,1140,9898,1002,2005,357,853,12547,15236,14752,12358,12587,14523,16254)
 ids <- c(1:200)
 foreach(k = ids) %dopar% {
   plot_user_history(i = k,
-                    save_fig = T, all = F, just_covid = T,
-                    files_meta = files.bp.nmh)
-  plot_user_history(i = k,
-                    save_fig = T, all = F, just_covid = F,
+                    save_fig = T, all = F,
                     files_meta = files.bp.nmh)
 }
 
 
 ################################################################################
+# count of users
+covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_valid_q_valid", 
+                                            pattern = ".rds")) %>%
+  mutate(cat = ifelse(grepl("bp_user-", file), "bp", "nmh"),
+         user = sub("bp_user-", "", file),
+         user = sub("nmh_user-", "", user),
+         user = sub("\\.rds", "", user))
+
+p1 <- files.bp.nmh %>%
+  group_by(cat) %>%
+  dplyr::summarise(count = n()) %>%
+  ggplot(aes(x=cat, y=count, fill=cat, label = count)) +
+  geom_bar(stat = "identity", show.legend = F) +
+  geom_text(size=3) +
+  scale_fill_manual(values = redblu.col)+
+  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5)) +
+  labs(title = "All covid-valid users with no Q filteration", x="")
+p2 <- files.bp.nmh %>%
+  filter(author %in% covid.users$user) %>%
+  group_by(cat) %>%
+  dplyr::summarise(count = n()) %>%
+  ggplot(aes(x=cat, y=count, fill=cat, label = count)) +
+  geom_bar(stat = "identity", show.legend = F) +
+  geom_text(size=3) +
+  scale_fill_manual(values = redblu.col)+
+  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5)) +
+  labs(title = "All covid-valid users with Q filteration", x="")
+p <- patchwork::wrap_plots(p1,p2,nrow = 1)
+ggsave(p, filename = "figs/counts-of-covid-users.png", bg = "white",
+       height = 4, width = 8, units = "in", dpi = 320)

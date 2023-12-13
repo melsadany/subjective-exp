@@ -1,7 +1,7 @@
 #! /bin/bash
 #$ -cwd
-#$ -q JM,UI
-#$ -pe smp 80
+#$ -q JM,UI,CCOM
+#$ -pe smp 56
 #$ -N pushift-extract-nmh-users_comments
 #$ -o logs/$JOB_NAME.log
 #$ -j y
@@ -9,7 +9,7 @@
 
 conda activate tximpute2
 
-PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data
+PROJECT_DIR=/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users
 mkdir -p ${PROJECT_DIR}
 cd ${PROJECT_DIR}
 TMP=${PROJECT_DIR}/../../tmp_$JOB_NAME
@@ -17,5 +17,5 @@ mkdir -p ${TMP}
 rm -rf ${TMP}
 mkdir -p ${TMP}
 
-python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field author --value_list /Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/users-of-no-mental-health-subreddits-at-all-sample-30k --working ${TMP} --processes 25
+python3 /Dedicated/jmichaelson-wdata/msmuhammad/workbench/PushshiftDumps/scripts/combine_folder_multiprocess.py /Dedicated/jmichaelson-wdata/msmuhammad/data/Reddit/academic-torrents/reddit/comments --field author --value_list /Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-users/ALL-nmh-subreddits-users-with-no-comments-at-all-in-mh-subreddits-35K --working ${TMP} --processes 40
 

@@ -14,15 +14,17 @@ setwd(project.dir)
 ################################################################################
 # list subreddits with extracted data
 files <- data.frame(f = list.files(paste0(project.dir, 
-                                          # "/data/derivatives/subreddits/filtered"), 
-                                          "/data/derivatives/subreddits2/filtered"), 
+                                          "/data/derivatives/subreddits/filtered"),
+                                          # "/data/derivatives/subreddits2/filtered"), 
                                    full.names = T, pattern = ".rds")) %>%
   mutate(subreddit = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits/filtered/", "",f),
+  # mutate(subreddit = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits2/filtered/", "",f),
          subreddit = sub(".rds", "", subreddit),
          subreddit = sub("_comments", "", subreddit))
 subreddit <- files$subreddit[index]
 subreddit.c <- read_rds(files$f[index])
 tmp <- subreddit.c %>% 
+  distinct(body, author, .keep_all = T) %>%
   select(author, body, timestamp_created) %>%
   mutate(bp = grepl("bipolar", body, ignore.case = T),
          manic = grepl("manic", body, ignore.case = T) | grepl("mania", body, ignore.case = T),
@@ -69,5 +71,22 @@ diagnosed_users <- tmp %>%
   select(author, body, overall_diagnosis, bp,iam_diagnosed,iam_bp,manic,depression,hypomanic,psychosis,anxiety,weight)  %>%
   distinct(author, .keep_all = T)
 
-write_lines(diagnosed_users$author, file = paste0("data/derivatives/diagnosed-bp-users_ids_s-", subreddit))
-write_rds(diagnosed_users, file = paste0("data/derivatives/diagnosed-bp-users_meta_s-", subreddit, ".rds"))
+write_lines(diagnosed_users$author, file = paste0("data/derivatives/identified-users/diagnosed-bp-users_ids_s-", subreddit))
+write_rds(diagnosed_users, file = paste0("data/derivatives/identified-users/diagnosed-bp-users_meta_s-", subreddit, ".rds"))
+################################################################################
+################################################################################
+################################################################################
+# assuming you ran the previous script for all bipolar related subreddits, and saved their output
+# now you'll need to combine these identified users and drop duplicates
+
+identified.files <- data.frame(file = list.files("data/derivatives/identified-users/", 
+                                                 full.names = T, pattern = "diagnosed")) %>%
+  filter(!grepl(".rds", file))
+registerDoMC(cores = 4)
+all.users <- foreach::foreach(i = 1:nrow(identified.files), .combine = rbind) %dopar% {
+  t <- data.frame(author = read_lines(identified.files$file[i]))
+}
+all.users.unique <- all.users %>%
+  distinct(author)
+write_lines(all.users.unique$author, "data/derivatives/identified-users/ALL-identified-bp-users")
+################################################################################

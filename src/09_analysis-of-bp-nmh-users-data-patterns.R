@@ -3,38 +3,50 @@
 ################################################################################
 rm(list = ls())
 gc()
-source("/Dedicated/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
+source("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
 ################################################################################
 ################################################################################
-project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
+project.dir <- "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
 # get a all authors summary of bp, and nmh
+# the author summary files are for full history of users, not just covid period
+
+# covid valid q list
+covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_valid_q_valid", 
+                                            pattern = ".rds")) %>%
+  mutate(cat = ifelse(grepl("bp_user-", file), "bp", "nmh"),
+         user = sub("bp_user-", "", file),
+         user = sub("nmh_user-", "", user),
+         user = sub("\\.rds", "", user))
+
 # bp users
-# bp.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/authors-summary", 
+# bp.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/authors-summary/", "", file)) %>%
-#   mutate(user = sub("_comments.rds", "", user))
+#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("_comments.rds", "", user)) %>%
+#   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
 # bp.summ.all <- foreach(i=1:nrow(bp.summ), .combine = rbind) %dopar% {
 #   t <- read_rds(bp.summ$file[i])
 #   return(t)
 # }
-# write_rds(bp.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/authors-summary/all-users-summary-combined-long.rds")
-bp.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/authors-summary/all-users-summary-combined-long.rds")
+# write_rds(bp.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+bp.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
 # nmh users
 # do this once
-# nmh.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/authors-summary", 
+# nmh.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/authors-summary/", "", file)) %>%
-#   mutate(user = sub("_comments.rds", "", user))
+#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("_comments.rds", "", user)) %>%
+#   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
 # nmh.summ.all <- foreach(i=1:nrow(nmh.summ), .combine = rbind) %dopar% {
 #   t <- read_rds(nmh.summ$file[i])
 #   return(t)
 # }
-# write_rds(nmh.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/authors-summary/all-users-summary-combined-long.rds")
-nmh.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/authors-summary/all-users-summary-combined-long.rds")
+# write_rds(nmh.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+nmh.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
 ####
 # combine both
 users.summ.all <- rbind(bp.summ.all %>% 
@@ -80,26 +92,69 @@ p3 <- subreddits.tot %>%
   geom_bar(stat = "identity", show.legend = F) +
   scale_fill_manual(values = redblu.col) +
   labs(y = "number of users", x="")
-ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit.png", 
+ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit-covid-valid-q-valid.png", 
        width = 24, height = 9, units = "in", dpi = 320, bg = "white")
 ################################################################################
 ################################################################################
 ################################################################################
 ################################################################################
-# compare sd of commenting history of users
-users <- data.frame(file = c(list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/filtered", pattern = "_comments.rds", full.names = T),
-                             list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/filtered", pattern = "_comments.rds", full.names = T))) %>%
-  mutate(ta_file = sub("filtered/", "filtered/text-analyzed/", file),
-         ta_file = sub("\\.rds", ".rds.rds", ta_file)) %>%
-  mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/bp_users_data/filtered/", "", file)) %>%
-  mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/nmh_users_data/filtered/", "", user)) %>%
-  mutate(user = sub("_comments.rds", "", user), 
-         cat = ifelse(grepl("bp_", file), "bp", "nmh"))
-registerDoMC(cores = 3)
+# get a list of all users you wanna look at
+users <- data.frame(file = c(list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid", pattern = "\\.rds", full.names = T))) %>%
+  mutate(ta_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-analyzed/", file),
+         te_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-embeddings/", file)) %>%
+  mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid/", "", file)) %>%
+  mutate(user = sub("\\.rds", "", user), 
+         user = sub("bp_user-", "", user),
+         user = sub("nmh_user-", "", user),
+         cat = ifelse(grepl("bp_user-", file), "bp", "nmh"))
+registerDoMC(cores = 30)
+# define dates of the covid period from start of 03/2020 to end of 03/2022
 all.dates <- data.frame(date_created = seq(as.Date("2020-03-01"), as.Date("2022-03-31"), by = "day"))
+################################################################################
+################################################################################
+# read the files of these users and save them in a combined file
+# the dataframe at the end should be with these columns:
+# category: bp or nmh
+# user 
+# subreddit
+# date
+# week
+# weekday
+# body
+# all extracted features from the text-analyzed script
+# all embeddings extracted from openai embeddins model
+combined.files <- foreach(i=1:nrow(users), .combine = rbind) %dopar% {
+  user <- users$user[i]
+  df <- read_rds(users$file[i]) %>%
+    mutate(date_created = as_date(timestamp_created),
+           weekday_created = weekdays(date_created))
+  if(file.exists(users$ta_file[i]) & file.exists(users$te_file[i])) {
+    df.ta <- read_rds(users$ta_file[i])
+    df.te <- read_rds(users$te_file[i])
+  }else{
+    return(NULL)
+  }
+  all <- inner_join(df %>% 
+                      select(author, subreddit, date_created, weekday_created, body) %>%
+                      mutate(cat = users$cat[i]),
+                    inner_join(df.ta, df.te))
+  return(all)
+}
 
-# decide if just doing covid or not
-just_covid = T
+################################################################################
+
+
+
+################################################################################
+
+
+
+################################################################################
+
+# compare sd of commenting history of users
+
+# # decide if just doing covid or not
+# just_covid = T
 # users.sd <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
 users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
   user <- users$user[i]
@@ -115,38 +170,12 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
   #   print("This user is a bot")
   #   return(NULL)
   # }
-  if (just_covid==T) {
-    covid.valid <- df %>%
-      group_by(year_created, month_created) %>%
-      dplyr::summarise(count = n()) %>%
-      filter(year_created <= 2020 & month_created <= 2 | year_created >= 2022 & month_created >= 4) %>%
-      mutate(status = ifelse(year_created <= 2020, "before", "after"))
-    covid.valid.d <- ifelse(length(unique(covid.valid$status))==2, T, F)
-    Q.valid <- df %>% 
-      group_by(year_created, Q) %>%
-      dplyr::summarise(count = n())
-    all.q <- data.frame(year_created = rep(c(2020:2022), each = 4),
-                        Q = rep(c(1:4),3))
-    c <- right_join(Q.valid, all.q) %>% 
-      mutate(count = ifelse(is.na(count), 0, count))
-    Q.valid.d <- ifelse(all(c$count>0),T,F)
-    if (covid.valid.d) {
-      df <- df %>%
-        filter(date_created >= as.Date("2020-03-01") & date_created <= as.Date("2022-03-31"))
-      print(paste0("This user is valid for covid-period criteria and ",
-                   ifelse(Q.valid.d == T, "valid", "not valid"),
-                   " for the comment-per-quarter criteria, with ",
-                   nrow(df), " comments"))
-    }else{
-      print("This user is not valid for covid-period criteria")
-      # return()
-    }
-  }
+  
   # df <- read_rds(users$file[i]) %>% mutate(date_created = as_date(timestamp_created))
-  if (!file.exists(users$ta_file[i])) {
+  if (!file.exists(users$ta_file[i]) | !file.exists(users$te_file[i])) {
     return(NULL)
   }
-  df.tn <- read_rds(users$ta_file[i]) %>%
+  df.ta <- read_rds(users$ta_file[i]) %>%
     mutate(date_created = as_date(timestamp_created),
            year_created = year(date_created),
            month_created = month(date_created),
@@ -154,23 +183,20 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
     mutate(Q = ifelse(month_created %in% c(1:3), 1, 
                       ifelse(month_created %in% c(4:6), 2,
                              ifelse(month_created %in% c(7:9), 3, 4))))
-  df.tn <- inner_join(df.tn, df %>% select(timestamp_created))
-  if (just_covid == T) {
-    if (covid.valid.d == T & Q.valid.d == T & nrow(df)>0) {
-      file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_valid/")
-    } else if (covid.valid.d == T & Q.valid.d == F & nrow(df)>0) {
-      file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_notvalid/")
-    } else {
-      file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_notvalid_q_notvalid/")
-    }
-    system(paste0("mkdir -p ", file.prefix))
-    write_rds(df.tn, 
-              file = paste0(file.prefix, users$cat[i],"_user-", user, "_text-analyzed.rds"), 
-              compress = "gz")
-    if (covid.valid.d == F | nrow(df) == 0) {
-      return(NULL)
-    }
-  }
+  df.ta <- inner_join(df.ta, df %>% select(timestamp_created))
+  df.te <- read_rds(users$te_file[i])
+  all <- inner_join(df.ta, df.te)
+  
+  # plot var of these embeddings vectors
+  # hist(apply(all%>%select(starts_with("V")), MARGIN = 2, FUN = function(x) var(x)) %>% as.numeric(),breaks = 100)
+  
+  
+  file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_valid/all-combined/")
+  system(paste0("mkdir -p ", file.prefix))
+  write_rds(all, 
+            file = paste0(file.prefix, users$cat[i],"_user-", user, "_all.rds"), 
+            compress = "gz")
+  
   tmp <- left_join(all.dates, 
                    data.frame(table(df$date_created)) %>% 
                      mutate(date_created=as_date(Var1))) %>%
@@ -182,51 +208,57 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
     dplyr::summarise(count = sum(Freq))
   t <- data.frame(user = users$user[i],
                   cat = users$cat[i],
-                  sd_comment_freq = sd(table(df$date_created)),
-                  mean_comment_freq = mean(table(df$date_created)),
+                  # sd_comment_freq = sd(table(df$date_created)),
+                  sd_comment_freq = sd(tmp.weeks$count),
+                  # mean_comment_freq = mean(table(df$date_created)),
+                  mean_comment_freq = mean(tmp.weeks$count),
                   # ac = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf))
-                  ac_comment_freq = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf)),
+                  ac_comment_freq = t(as.numeric(acf(tmp.weeks$count, lag.max = 108)$acf)),
                   fft_comment_freq = t(fft(tmp.weeks$count)))
-  tmp2 <- left_join(all.dates,
-                    df.tn %>% 
+  tmp2 <- left_join(all.dates  %>%
+                      mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
+                    all %>% 
                       mutate_at(.vars = vars(nrc.positive, nrc.negative, nrc.anger, nrc.anticipation, nrc.disgust,
                                              nrc.fear, nrc.joy, nrc.sadness, nrc.surprise, nrc.trust),
-                                .funs = function(x) x/df.tn$sentimentr.word_count) %>%
-                      group_by(date_created) %>%
-                      dplyr::summarise_at(.vars = vars(ends_with("_sentiment"),
-                                                       "readability", 
-                                                       starts_with("nrc")), 
-                                          .funs = function(x) mean(x))) %>%
-    mutate_at(.vars = vars(ends_with("_sentiment"),
-                           "readability", 
-                           starts_with("nrc")), 
-              .funs = function(x) ifelse(is.na(x), 0, x))
-  tmp2.weeks <- tmp2 %>%
-    mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))) %>%
+                                .funs = function(x) x/all$sentimentr.word_count)) %>%
     group_by(week) %>%
     dplyr::summarise_at(.vars = vars(ends_with("_sentiment"),
                                      "readability", 
-                                     starts_with("nrc")),
-                        .funs = function(x) mean(x))
-  acv <- foreach (j = 2:ncol(tmp2), .combine = cbind) %dopar% {
-    var <- colnames(tmp2)[j]
-    if (min(tmp2[,j]) == max(tmp2[,j])) {
+                                     starts_with("nrc")), 
+                        .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T)) %>%
+    ungroup()
+  ###
+  # combine embeddings with ful timeline
+  # replace missing ones with 0
+  # group by week, and get embeddings average
+  tmp3 <- left_join(all.dates %>%
+                      mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
+                    all %>% select(date_created, paste0("V", c(1:10)))) %>%
+    group_by(week) %>%
+    dplyr::summarise_at(.vars = vars(paste0("V", c(1:10))),
+                        .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T))
+  # combine tmp2 for nrc and tmp3 of ambeddings
+  tmp4 <- inner_join(tmp2, tmp3)
+  ###
+  acv <- foreach (j = 2:ncol(tmp4), .combine = cbind) %dopar% {
+    var <- colnames(tmp4)[j]
+    if (min(tmp4[,j]) == max(tmp4[,j])) {
       acv.t <- data.frame(sd = 0,
                           mean = 0,
                           matrix(ncol = 109, nrow = 1, 0))
-      } else {
-        acv.t <- data.frame(sd = sd(tmp2[,j]),
-                            mean = mean(tmp2[,j]),
-                            t(as.numeric(acf(tmp2[,j], lag.max = 108)$acf)))
-      }
+    } else {
+        acv.t <- data.frame(sd = sd(unlist(tmp4[,j])),
+                            mean = mean(unlist(tmp4[,j])),
+                            t(as.numeric(acf(unlist(tmp4[,j]), lag.max = 108)$acf)),
+                            t(fft(unlist(tmp4[,j]))))
+    }
     colnames(acv.t) <- c(paste0("sd_", var),
                          paste0("mean_", var),
-                         paste0("ac_", var, ".", c(1:109)))
+                         paste0("ac_", var, ".", c(1:109)),
+                         paste0("fft_", var, ".", c(1:109)))
     return(acv.t)
     }
-  t <- cbind(t, acv) %>%
-    mutate(covid_valid = covid.valid.d,
-           q_valid = Q.valid.d)
+  t <- cbind(t, acv)
   return(t)
 }
 # write_rds(users.stats.pre, "data/derivatives/all-users/combined-covid-valid-users.rds")

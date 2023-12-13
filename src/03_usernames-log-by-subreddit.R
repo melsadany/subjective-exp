@@ -12,27 +12,26 @@ setwd(project.dir)
 # list files of authors in subreddits
 # combine data to make a dataframe of usernames as rows, and subreddits as colmns
 # with filled values of number of comments per user per subreddit
-files <- data.frame(f = list.files(paste0(project.dir, "/data/derivatives/subreddits/authors-summary"), full.names = T, pattern = "comments")) %>%
+files1 <- data.frame(f = list.files(paste0(project.dir, "/data/derivatives/subreddits/authors-summary"), full.names = T, pattern = "comments")) %>%
   mutate(subreddit = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits/authors-summary/", "", f),
          subreddit = sub(".rds", "", subreddit),
          subreddit = sub("_comments", "", subreddit))
 ####
-# add more nmh subreddits to the list
-nmh.files <- data.frame(f = list.files(paste0(project.dir, "/data/derivatives/non-mental-health-subreddits/authors-summary"), full.names = T, pattern = "comments")) %>%
-  mutate(subreddit = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/non-mental-health-subreddits/authors-summary/", "", f),
+# add more subreddits to the list
+files2 <- data.frame(f = list.files(paste0(project.dir, "/data/derivatives/subreddits2/authors-summary"), full.names = T, pattern = "comments")) %>%
+  mutate(subreddit = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/subreddits2/authors-summary/", "", f),
          subreddit = sub(".rds", "", subreddit),
          subreddit = sub("_comments", "", subreddit))
-files <- rbind(files, nmh.files)
+files <- rbind(files1, files2)
 ####
 
-registerDoMC(cores = 4)
+registerDoMC(cores = 24)
 users.summary <- foreach(i= 1: nrow(files), .combine = rbind) %dopar% {
   t <- read_rds(files$f[i]) %>%
     mutate(subreddit = files$subreddit[i])
   return(t)
 }
-# write_rds(users.summary, "data/derivatives/subreddits/authors-summary/all-users-all-subreddits-summary-long.rds")
-write_rds(users.summary, "data/derivatives/all-users-all-mh-nmh-subreddits-summary-long.rds")
+write_rds(users.summary, "data/derivatives/identified-users/all-users-all-mh-nmh-subreddits-summary-long.rds")
 
 ####
 # make a dataframe of users data by subreddit
@@ -41,7 +40,7 @@ users.log.df <- users.summary %>%
 users.log.df<- users.log.df %>%
   mutate(sum_of_comments = rowSums(users.log.df[,-1], na.rm = T))
 # write_rds(users.log.df, "data/derivatives/subreddits/authors-summary/all-users-all-subreddits-summary-mtx.rds")
-write_rds(users.log.df, "data/derivatives/all-users-all-mh-nmh-subreddits-summary-mtx.rds")
+# write_rds(users.log.df, "data/derivatives/all-users-all-mh-nmh-subreddits-summary-mtx.rds")
 ####
 
 # only keep users with >10 comments per subreddit
@@ -80,26 +79,31 @@ p3 <- users.log.df.filt.2 %>%
 
 p <- patchwork::wrap_plots(p2,p1,p3, ncol = 1, heights = c(2.5,1,1))
 ggsave(p, filename = "figs/summary-plots-mh-nmh.jpeg", height = 10, width = 8, units = "in")
+################################################################################
+################################################################################
+################################################################################
+# 
 
 
+################################################################################
 ####
-library(igraph)
-df <- users.summary %>%
-  filter(count > 10, !grepl("deleted", author), !grepl("AutoModerator", author)) %>%
-  select(username=author, subreddit)
-df2 <- full_join(df %>% rename(subreddit_x = subreddit),
-                 df %>% rename(subreddit_y = subreddit), relationship = "many-to-many") %>%
-  filter(subreddit_x != subreddit_y) %>%
-  group_by(subreddit_x, subreddit_y) %>%
-  dplyr::summarise(count = n()) 
-df3 <- df2 %>%
-  pivot_wider(names_from = subreddit_y, values_from = count, values_fill = 0) %>%
-  column_to_rownames("subreddit_x")
-
-network <- graph_from_data_frame(df2[,-3], directed = F)
-deg <- degree(network, mode = "all")
-plot(network)
-
-graph <- graph_from_adjacency_matrix(df2, weighted = T, mode = "undirected", diag = F)
-plot(graph, edge.width = E(graph)$user_count)
+# library(igraph)
+# df <- users.summary %>%
+#   filter(count > 10, !grepl("deleted", author), !grepl("AutoModerator", author)) %>%
+#   select(username=author, subreddit)
+# df2 <- full_join(df %>% rename(subreddit_x = subreddit),
+#                  df %>% rename(subreddit_y = subreddit), relationship = "many-to-many") %>%
+#   filter(subreddit_x != subreddit_y) %>%
+#   group_by(subreddit_x, subreddit_y) %>%
+#   dplyr::summarise(count = n()) 
+# df3 <- df2 %>%
+#   pivot_wider(names_from = subreddit_y, values_from = count, values_fill = 0) %>%
+#   column_to_rownames("subreddit_x")
+# 
+# network <- graph_from_data_frame(df2[,-3], directed = F)
+# deg <- degree(network, mode = "all")
+# plot(network)
+# 
+# graph <- graph_from_adjacency_matrix(df2, weighted = T, mode = "undirected", diag = F)
+# plot(graph, edge.width = E(graph)$user_count)
 ####
