@@ -4,6 +4,14 @@
 rm(list = ls())
 gc()
 source("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
+pdssave <- function(...,file){  
+  con = pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -2 -q 80 -f 3 > ",file,".pxz",sep=""),"wb") 
+  saveRDS(...,file=con)
+}
+pdsload <- function(fname,envir=.GlobalEnv){
+  con <- pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -d <",fname),"rb")
+  return(readRDS(con))
+}
 ################################################################################
 ################################################################################
 project.dir <- "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
@@ -123,26 +131,49 @@ all.dates <- data.frame(date_created = seq(as.Date("2020-03-01"), as.Date("2022-
 # body
 # all extracted features from the text-analyzed script
 # all embeddings extracted from openai embeddins model
-combined.files <- foreach(i=1:nrow(users), .combine = rbind) %dopar% {
-  user <- users$user[i]
-  df <- read_rds(users$file[i]) %>%
-    mutate(date_created = as_date(timestamp_created),
-           weekday_created = weekdays(date_created))
-  if(file.exists(users$ta_file[i]) & file.exists(users$te_file[i])) {
-    df.ta <- read_rds(users$ta_file[i])
-    df.te <- read_rds(users$te_file[i])
-  }else{
-    return(NULL)
+for (k in c(1,1001,2001,3001,4001,5001,6001,7001,8001,9001,10001,11001,12001,13001,14001,15001,16001)) {
+  start <- k
+  end <- min(nrow(users), k+999)
+  print(paste0("start: ", start, " end:", end))
+  # print(start)
+  # print(end)
+  # combined.files <- foreach(i=1:nrow(users), .combine = rbind) %dopar% {
+  combined.files <- foreach(i=start:end, .combine = rbind) %dopar% {
+    # user <- users$user[i]
+    df <- read_rds(users$file[i]) %>%
+      mutate(date_created = as_date(timestamp_created),
+             weekday_created = weekdays(date_created))
+    if(file.exists(users$ta_file[i]) & file.exists(users$te_file[i])) {
+      # df.ta <- read_rds(users$ta_file[i])
+      df.te <- read_rds(users$te_file[i])
+    }else{
+      return(NULL)
+    }
+    all <- inner_join(df %>% 
+                        select(author, subreddit, date_created, weekday_created, body) %>%
+                        mutate(cat = users$cat[i]),
+                      # inner_join(df.ta, df.te))
+                      df.te)
+    rm(df)
+    rm(df.te)
+    gc()
+    return(all)
   }
-  all <- inner_join(df %>% 
-                      select(author, subreddit, date_created, weekday_created, body) %>%
-                      mutate(cat = users$cat[i]),
-                    inner_join(df.ta, df.te))
-  return(all)
+  pdssave(combined.files, file = paste0("data/derivatives/all-users/combined-covid-valid-q-valid-embeddings-", start,".rds"))
+  rm(combined.files)
+  gc()
 }
 
+# write_rds(combined.files, "data/derivatives/all-users/combined-covid-valid-q-valid-embeddings.rds")
+# thousand.1 <- combined.files
 ################################################################################
-
+# try to read them back? 
+f <- list.files("data/derivatives/all-users/embeddings", full.names = T)
+all.emb <- foreach (i = c(1:17), .combine = rbind) %dopar% {
+  t <- pdsload(f[i])
+  gc()
+  return(t %>% select(-c(body, weekday_created)))
+}
 
 
 ################################################################################
