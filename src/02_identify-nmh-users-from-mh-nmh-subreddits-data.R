@@ -24,7 +24,7 @@ files2.mh.indices <- c(2:6, 8,9,15)
 mh.files <- rbind(files1, files2[files2.mh.indices,])
 
 registerDoMC(cores = 14)
-mh.users.df <- foreach(i= nrow(mh.files), .combine = rbind) %dopar% {
+mh.users.df <- foreach(i= 1:nrow(mh.files), .combine = rbind) %dopar% {
   t <- read_rds(mh.files$f[i]) %>%
     mutate(subreddit = mh.files$subreddit[i])
   return(t)

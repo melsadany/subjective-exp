@@ -3,18 +3,18 @@
 ################################################################################
 rm(list = ls())
 gc()
-source("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
+source("/Dedicated/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
 pdssave <- function(...,file){  
-  con = pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -2 -q 80 -f 3 > ",file,".pxz",sep=""),"wb") 
+  con = pipe(paste("/Dedicated/jmichaelson-wdata/msmuhammad/workbench/pixz -2 -q 80 -f 3 > ",file,".pxz",sep=""),"wb") 
   saveRDS(...,file=con)
 }
 pdsload <- function(fname,envir=.GlobalEnv){
-  con <- pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -d <",fname),"rb")
+  con <- pipe(paste("/Dedicated/jmichaelson-wdata/msmuhammad/workbench/pixz -d <",fname),"rb")
   return(readRDS(con))
 }
 ################################################################################
 ################################################################################
-project.dir <- "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
+project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
 ################################################################################
 # get a all authors summary of bp, and nmh
@@ -29,9 +29,9 @@ covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_va
          user = sub("\\.rds", "", user))
 
 # bp users
-# bp.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary",
+# bp.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/", "", file)) %>%
 #   mutate(user = sub("_comments.rds", "", user)) %>%
 #   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
@@ -39,13 +39,13 @@ covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_va
 #   t <- read_rds(bp.summ$file[i])
 #   return(t)
 # }
-# write_rds(bp.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
-bp.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+# write_rds(bp.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+bp.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
 # nmh users
 # do this once
-# nmh.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary",
+# nmh.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/", "", file)) %>%
 #   mutate(user = sub("_comments.rds", "", user)) %>%
 #   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
@@ -53,8 +53,8 @@ bp.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/proje
 #   t <- read_rds(nmh.summ$file[i])
 #   return(t)
 # }
-# write_rds(nmh.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
-nmh.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+# write_rds(nmh.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+nmh.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
 ####
 # combine both
 users.summ.all <- rbind(bp.summ.all %>% 
@@ -104,16 +104,16 @@ p3 <- subreddits.tot %>%
   labs(y = "number of users", x="") +
   theme(axis.text.x.bottom = element_text(size=4))
 ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit-covid-valid-q-valid.png", 
-       width = 26, height = 9, units = "in", dpi = 320, bg = "white")
+       width = 20, height = 9, units = "in", dpi = 320, bg = "white")
 ################################################################################
 ################################################################################
 ################################################################################
 ################################################################################
 # get a list of all users you wanna look at
-users <- data.frame(file = c(list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid", pattern = "\\.rds", full.names = T))) %>%
+users <- data.frame(file = c(list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid", pattern = "\\.rds", full.names = T))) %>%
   mutate(ta_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-analyzed/", file),
          te_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-embeddings/", file)) %>%
-  mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid/", "", file)) %>%
+  mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid/", "", file)) %>%
   mutate(user = sub("\\.rds", "", user), 
          user = sub("bp_user-", "", user),
          user = sub("nmh_user-", "", user),
@@ -299,36 +299,40 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
   t <- cbind(t, acv)
   return(t)
 }
-# write_rds(users.stats.pre, "data/derivatives/all-users/combined-covid-valid-users.rds")
-# users.stats.pre <- read_rds("data/derivatives/all-users/combined-covid-valid-users.rds")
+# write_rds(users.stats.pre, "data/derivatives/all-users/combined-covid-valid-users-ta.rds")
+# users.stats.pre <- read_rds("data/derivatives/all-users/combined-covid-valid-users-ta.rds")
 ######
-users.stats <- users.stats.pre
+# fixing the error of nmh users beiung not true controls
+nmh <- read_lines("data/derivatives/identified-users/ALL-nmh-subreddits-users-with-no-comments-at-all-in-mh-subreddits")
+users.stats <- users.stats.pre %>%
+  filter(cat == "bp" | user %in% nmh)
+users.stats <- users.stats[-c(3592,3217),] # possible to be bots
 # users.stats <- users.stats.pre %>% filter(q_valid == T)
 
-p1 <- users.stats %>%
-  pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
-  mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
-  mutate(var = sub("ac_", "", ac_var),
-         var = sub("\\.[0-9]+", "", var)) %>%
-  ggplot(aes(x=ac_lag, y=acf, group = user, color = cat)) +
-  geom_line(alpha = 0.3) +
-  # facet_wrap(~cat) +
-  ggh4x::facet_grid2(cols = vars(var), rows = vars(cat), scales = "free", space = "free") +
-  scale_color_manual(values = redblu.col)
-p2 <- users.stats %>%
-  pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
-  mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
-  mutate(var = sub("ac_", "", ac_var),
-         var = sub("\\.[0-9]+", "", var)) %>%
-  group_by(user,cat,var) %>%
-  dplyr::summarise(avg_acf = mean(acf)) %>%
-  ggplot(aes(x=cat, y=avg_acf, fill = cat)) +
-  geom_violin() +
-  ggpubr::stat_compare_means(size = 2.5) +
-  facet_wrap(~var, nrow = 1, scales = "free") +
-  scale_fill_manual(values = redblu.col) +
-  geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
-  theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
+# p1 <- users.stats %>%
+#   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
+#   mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
+#   mutate(var = sub("ac_", "", ac_var),
+#          var = sub("\\.[0-9]+", "", var)) %>%
+#   ggplot(aes(x=ac_lag, y=acf, group = user, color = cat)) +
+#   geom_line(alpha = 0.3) +
+#   # facet_wrap(~cat) +
+#   ggh4x::facet_grid2(cols = vars(var), rows = vars(cat), scales = "free", space = "free") +
+#   scale_color_manual(values = redblu.col)
+# p2 <- users.stats %>%
+#   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
+#   mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
+#   mutate(var = sub("ac_", "", ac_var),
+#          var = sub("\\.[0-9]+", "", var)) %>%
+#   group_by(user,cat,var) %>%
+#   dplyr::summarise(avg_acf = mean(acf)) %>%
+#   ggplot(aes(x=cat, y=avg_acf, fill = cat)) +
+#   geom_violin() +
+#   ggpubr::stat_compare_means(size = 2.5) +
+#   facet_wrap(~var, nrow = 1, scales = "free") +
+#   scale_fill_manual(values = redblu.col) +
+#   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
+#   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
 p3 <- users.stats %>%
   pivot_longer(starts_with("sd"), names_to = "sd_var", values_to = "sd") %>%
   mutate(var = sub("sd_", "", sd_var),
@@ -352,7 +356,7 @@ p4 <- users.stats %>%
   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
 p5 <- users.stats %>%
-  pivot_longer(starts_with("fft"), names_to = "fft_var", values_to = "fft") %>%
+  pivot_longer(starts_with("fft")&(contains("freq")|contains("sentiment")), names_to = "fft_var", values_to = "fft") %>%
   mutate(var = sub("fft_", "", fft_var),
          var = sub("\\.[0-9]+", "", var)) %>%
   mutate(fft = Re(fft)) %>%
@@ -363,21 +367,12 @@ p5 <- users.stats %>%
   scale_fill_manual(values = redblu.col) +
   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
-p <- patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
-ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid.png",
-# ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid_q-valid.png", 
+# p <- patchwork::wrap_plots(p1,p2,p3,p4,nrow = 4, heights = c(3,1,1,1))
+ggsave(p3,filename = "figs/boxplot_sd-of-all_bp-nmh_covid_q-valid.png",
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid.png",
-# ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid_q-valid.png", 
+ggsave(p4,filename = "figs/boxplot_mean-of-all_bp-nmh_covid_q-valid.png",
        width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid.png",
-# ggsave(p2,filename = "figs/boxplot_acf-of-all_bp-nmh_covid_q-valid.png", 
-       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p5,filename = "figs/boxplot_fft-of-all_bp-nmh_covid.png",
-# ggsave(p5,filename = "figs/boxplot_fft-of-all_bp-nmh_covid_q-valid.png", 
-       width = 24.7, height = 5.7, units = "in", dpi = 320, bg = "white")
-ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid.png",
-# ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid_q-valid.png", 
+ggsave(p,filename = "figs/boxplot-of-all_bp-nmh_covid_q-valid.png",
        width = 24.7, height = 20, units = "in", dpi = 320, bg = "white")
 ################################################################################
 users.stats %>%
