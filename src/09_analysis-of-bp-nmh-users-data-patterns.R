@@ -86,12 +86,14 @@ p1 <- subreddits.tot %>%
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 50, color = "black", linetype = 2) +
   scale_fill_manual(values = redblu.col) +
-  labs(y = "percentage of users")
+  labs(y = "percentage of users") +
+  theme(axis.text.x.bottom = element_text(size=4))
 p2 <- subreddits.tot %>% 
   filter(tot_users > 1000) %>%
   ggplot(aes(x=reorder(subreddit, desc(tot_users)), y = tot_users)) +
   geom_bar(stat = "identity") +
-  labs(y = "number of users", x="")
+  labs(y = "number of users", x="") +
+  theme(axis.text.x.bottom = element_text(size=4))
 p3 <- subreddits.tot %>% 
   filter(tot_users > 1000) %>%
   pivot_longer(cols = c("bp_0", "bp_1"), values_to = "users_count", names_to = "bp") %>%
@@ -99,9 +101,10 @@ p3 <- subreddits.tot %>%
   ggplot(aes(x=reorder(subreddit, desc(tot_users)), y = users_count, fill = bp)) +
   geom_bar(stat = "identity", show.legend = F) +
   scale_fill_manual(values = redblu.col) +
-  labs(y = "number of users", x="")
+  labs(y = "number of users", x="") +
+  theme(axis.text.x.bottom = element_text(size=4))
 ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentage-by-subreddit-covid-valid-q-valid.png", 
-       width = 24, height = 9, units = "in", dpi = 320, bg = "white")
+       width = 26, height = 9, units = "in", dpi = 320, bg = "white")
 ################################################################################
 ################################################################################
 ################################################################################
@@ -203,7 +206,8 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
   # }
   
   # df <- read_rds(users$file[i]) %>% mutate(date_created = as_date(timestamp_created))
-  if (!file.exists(users$ta_file[i]) | !file.exists(users$te_file[i])) {
+  # if (!file.exists(users$ta_file[i]) | !file.exists(users$te_file[i])) {
+  if (!file.exists(users$ta_file[i])) {
     return(NULL)
   }
   df.ta <- read_rds(users$ta_file[i]) %>%
@@ -215,18 +219,19 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
                       ifelse(month_created %in% c(4:6), 2,
                              ifelse(month_created %in% c(7:9), 3, 4))))
   df.ta <- inner_join(df.ta, df %>% select(timestamp_created))
-  df.te <- read_rds(users$te_file[i])
-  all <- inner_join(df.ta, df.te)
+  # df.te <- read_rds(users$te_file[i])
+  # all <- inner_join(df.ta, df.te)
+  all <- df.ta
   
   # plot var of these embeddings vectors
   # hist(apply(all%>%select(starts_with("V")), MARGIN = 2, FUN = function(x) var(x)) %>% as.numeric(),breaks = 100)
   
   
-  file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_valid/all-combined/")
-  system(paste0("mkdir -p ", file.prefix))
-  write_rds(all, 
-            file = paste0(file.prefix, users$cat[i],"_user-", user, "_all.rds"), 
-            compress = "gz")
+  # file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_valid/all-combined/")
+  # system(paste0("mkdir -p ", file.prefix))
+  # write_rds(all, 
+  #           file = paste0(file.prefix, users$cat[i],"_user-", user, "_all.rds"), 
+  #           compress = "gz")
   
   tmp <- left_join(all.dates, 
                    data.frame(table(df$date_created)) %>% 
@@ -258,24 +263,26 @@ users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
                                      starts_with("nrc")), 
                         .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T)) %>%
     ungroup()
-  ###
-  # combine embeddings with ful timeline
-  # replace missing ones with 0
-  # group by week, and get embeddings average
-  tmp3 <- left_join(all.dates %>%
-                      mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
-                    all %>% select(date_created, paste0("V", c(1:10)))) %>%
-    group_by(week) %>%
-    dplyr::summarise_at(.vars = vars(paste0("V", c(1:10))),
-                        .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T))
-  # combine tmp2 for nrc and tmp3 of ambeddings
-  tmp4 <- inner_join(tmp2, tmp3)
+  # ###
+  # # combine embeddings with ful timeline
+  # # replace missing ones with 0
+  # # group by week, and get embeddings average
+  # tmp3 <- left_join(all.dates %>%
+  #                     mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
+  #                   all %>% select(date_created, paste0("V", c(1:10)))) %>%
+  #   group_by(week) %>%
+  #   dplyr::summarise_at(.vars = vars(paste0("V", c(1:10))),
+  #                       .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T))
+  # # combine tmp2 for nrc and tmp3 of ambeddings
+  # tmp4 <- inner_join(tmp2, tmp3)
+  tmp4 <- tmp2
   ###
   acv <- foreach (j = 2:ncol(tmp4), .combine = cbind) %dopar% {
     var <- colnames(tmp4)[j]
     if (min(tmp4[,j]) == max(tmp4[,j])) {
       acv.t <- data.frame(sd = 0,
                           mean = 0,
+                          matrix(ncol = 109, nrow = 1, 0),
                           matrix(ncol = 109, nrow = 1, 0))
     } else {
         acv.t <- data.frame(sd = sd(unlist(tmp4[,j])),
