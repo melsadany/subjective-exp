@@ -57,7 +57,7 @@ nmh.users <- nmh.users.df %>%
 
 
 # filter users to active ones with more than 10 comments per subreddit
-nmh.users.df <- nmh.users.df %>% filter(count>10)
+# nmh.users.df <- nmh.users.df %>% filter(count>10)
 # get ones not active in any mental health subreddits
 all.mh.nmh.users <- data.frame(author = unique(c(nmh.users.df$author, mh.users$author))) %>%
   mutate(mh = ifelse(author %in% mh.users$author, T, F),

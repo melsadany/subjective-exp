@@ -3,19 +3,24 @@
 ################################################################################
 rm(list = ls())
 gc()
-source("/Dedicated/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
+source("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/msmuhammad-source.R")
+library(qdap)
 pdssave <- function(...,file){  
-  con = pipe(paste("/Dedicated/jmichaelson-wdata/msmuhammad/workbench/pixz -2 -q 80 -f 3 > ",file,".pxz",sep=""),"wb") 
+  con = pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -2 -q 80 -f 3 > ",file,".pxz",sep=""),"wb") 
   saveRDS(...,file=con)
 }
 pdsload <- function(fname,envir=.GlobalEnv){
-  con <- pipe(paste("/Dedicated/jmichaelson-wdata/msmuhammad/workbench/pixz -d <",fname),"rb")
+  con <- pipe(paste("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/workbench/pixz -d <",fname),"rb")
   return(readRDS(con))
 }
 ################################################################################
 ################################################################################
-project.dir <- "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
+project.dir <- "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp"
 setwd(project.dir)
+################################################################################
+################################################################################
+#################### subreddits usage percentage by group ######################
+################################################################################
 ################################################################################
 # get a all authors summary of bp, and nmh
 # the author summary files are for full history of users, not just covid period
@@ -27,11 +32,11 @@ covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_va
          user = sub("bp_user-", "", file),
          user = sub("nmh_user-", "", user),
          user = sub("\\.rds", "", user))
-
+######
 # bp users
-# bp.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary",
+# bp.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/", "", file)) %>%
 #   mutate(user = sub("_comments.rds", "", user)) %>%
 #   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
@@ -39,13 +44,14 @@ covid.users <- data.frame(file = list.files("data/derivatives/all-users/covid_va
 #   t <- read_rds(bp.summ$file[i])
 #   return(t)
 # }
-# write_rds(bp.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
-bp.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+# write_rds(bp.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+bp.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-bp-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+######
 # nmh users
 # do this once
-# nmh.summ <- data.frame(file = list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary",
+# nmh.summ <- data.frame(file = list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary",
 #                                         full.names = T, pattern = "_comments.rds")) %>%
-#   mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/", "", file)) %>%
+#   mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/", "", file)) %>%
 #   mutate(user = sub("_comments.rds", "", user)) %>%
 #   filter(user %in% covid.users$user)
 # registerDoMC(cores = 4)
@@ -53,8 +59,8 @@ bp.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjec
 #   t <- read_rds(nmh.summ$file[i])
 #   return(t)
 # }
-# write_rds(nmh.summ.all, "/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
-nmh.summ.all <- read_rds("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+# write_rds(nmh.summ.all, "/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
+nmh.summ.all <- read_rds("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/identified-nmh-users/authors-summary/covid-valid-q-valid-users-summary-combined-long.rds")
 ####
 # combine both
 users.summ.all <- rbind(bp.summ.all %>% 
@@ -107,232 +113,145 @@ ggsave(patchwork::wrap_plots(p3,p1, ncol = 1), filename = "figs/bp-nmh-percentag
        width = 20, height = 9, units = "in", dpi = 320, bg = "white")
 ################################################################################
 ################################################################################
+################## list covid users of interest both groups ####################
 ################################################################################
 ################################################################################
-# get a list of all users you wanna look at
-users <- data.frame(file = c(list.files("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid", pattern = "\\.rds", full.names = T))) %>%
+## get a list of all users you wanna look at
+users <- data.frame(file = c(list.files("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid", pattern = "\\.rds", full.names = T))) %>%
   mutate(ta_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-analyzed/", file),
          te_file = sub("covid_valid_q_valid/", "covid_valid_no-q/text-embeddings/", file)) %>%
-  mutate(user = sub("/Dedicated/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid/", "", file)) %>%
+  mutate(user = sub("/home/msmuhammad/LSS/jmichaelson-wdata/msmuhammad/projects/subjective-exp/data/derivatives/all-users/covid_valid_q_valid/", "", file)) %>%
   mutate(user = sub("\\.rds", "", user), 
          user = sub("bp_user-", "", user),
          user = sub("nmh_user-", "", user),
          cat = ifelse(grepl("bp_user-", file), "bp", "nmh"))
-registerDoMC(cores = 30)
+registerDoMC(cores = 5)
 # define dates of the covid period from start of 03/2020 to end of 03/2022
 all.dates <- data.frame(date_created = seq(as.Date("2020-03-01"), as.Date("2022-03-31"), by = "day"))
 ################################################################################
 ################################################################################
-# read the files of these users and save them in a combined file
-# the dataframe at the end should be with these columns:
-# category: bp or nmh
-# user 
-# subreddit
-# date
-# week
-# weekday
-# body
-# all extracted features from the text-analyzed script
-# all embeddings extracted from openai embeddins model
-for (k in c(1,1001,2001,3001,4001,5001,6001,7001,8001,9001,10001,11001,12001,13001,14001,15001,16001)) {
-  start <- k
-  end <- min(nrow(users), k+999)
-  print(paste0("start: ", start, " end:", end))
-  # print(start)
-  # print(end)
-  # combined.files <- foreach(i=1:nrow(users), .combine = rbind) %dopar% {
-  combined.files <- foreach(i=start:end, .combine = rbind) %dopar% {
-    # user <- users$user[i]
-    df <- read_rds(users$file[i]) %>%
-      mutate(date_created = as_date(timestamp_created),
-             weekday_created = weekdays(date_created))
-    if(file.exists(users$ta_file[i]) & file.exists(users$te_file[i])) {
-      # df.ta <- read_rds(users$ta_file[i])
-      df.te <- read_rds(users$te_file[i])
-    }else{
-      return(NULL)
-    }
-    all <- inner_join(df %>% 
-                        select(author, subreddit, date_created, weekday_created, body) %>%
-                        mutate(cat = users$cat[i]),
-                      # inner_join(df.ta, df.te))
-                      df.te)
-    rm(df)
-    rm(df.te)
-    gc()
-    return(all)
-  }
-  pdssave(combined.files, file = paste0("data/derivatives/all-users/combined-covid-valid-q-valid-embeddings-", start,".rds"))
-  rm(combined.files)
-  gc()
-}
-
-# write_rds(combined.files, "data/derivatives/all-users/combined-covid-valid-q-valid-embeddings.rds")
-# thousand.1 <- combined.files
+############## summary stats of languaga/comment features per user #############
 ################################################################################
-# try to read them back? 
-f <- list.files("data/derivatives/all-users/embeddings", full.names = T)
-all.emb <- foreach (i = c(1:17), .combine = rbind) %dopar% {
-  t <- pdsload(f[i])
-  gc()
-  return(t %>% select(-c(body, weekday_created)))
-}
-
-
 ################################################################################
-
-
-
-################################################################################
-
-# compare sd of commenting history of users
-
-# # decide if just doing covid or not
-# just_covid = T
-# users.sd <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
-users.stats.pre <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
+## you want to get the simple features with fewer dimensions here
+# these could be mean, sd of the main features of interest like freq, n_misspelled, etc.
+users.stats.pre1 <- foreach(i = 1:nrow(users), .combine = rbind) %dopar% {
+  # get the main dataframe of the user history
   user <- users$user[i]
   df <- read_rds(users$file[i]) %>%
     mutate(date_created = as_date(timestamp_created),
-           year_created = year(date_created),
-           month_created = month(date_created),
-           day_created = day(date_created))%>%
-    mutate(Q = ifelse(month_created %in% c(1:3), 1, 
-                      ifelse(month_created %in% c(4:6), 2,
-                             ifelse(month_created %in% c(7:9), 3, 4))))
-  # if (sum(duplicated(df$body))>3) {
-  #   print("This user is a bot")
-  #   return(NULL)
-  # }
-  
-  # df <- read_rds(users$file[i]) %>% mutate(date_created = as_date(timestamp_created))
-  # if (!file.exists(users$ta_file[i]) | !file.exists(users$te_file[i])) {
+           day_created = day(date_created))
+  #####################
+  # do the qdap methods here
+  # number of misspelled words
+  sp <- check_spelling(df$body, n.suggest = 0, parallel = F)
+  n_misspelled <- as.vector(table(factor(sp$row, levels = c(0:nrow(df)))))
+  spe.all <- data.frame(n = sum(n_misspelled),
+                        mean = mean(n_misspelled),
+                        sd = sd(n_misspelled))
+  colnames(spe.all) <- paste0("spelling_", colnames(spe.all))
+  # diversity of words in all of their comment history
+  diversity <- qdap::diversity(df$body)[,-1]
+  colnames(diversity) <- paste0("diversity_", colnames(diversity))
+  # formality of their comments of all time
+  lexical.class <- qdap::lexical_classification(df$body)
+  lexical <- data.frame(lexical_wc = lexical.class$lexical_classification$word.count,
+                        lexical_n_content = lexical.class$lexical_classification$n.content,
+                        lexical_n_functional = lexical.class$lexical_classification$n.functional)
+  # pronouns
+  object.pronoun <- qdap::object_pronoun_type(df$body)$prop[,-1]
+  subject.pronoun <- qdap::subject_pronoun_type(df$body)$prop[,-1]
+  pronouns <- inner_join(object.pronoun, subject.pronoun)
+  colnames(pronouns) <- paste0("pronouns_", colnames(pronouns))
+  # combine qdap features
+  all.qdap <- cbind(spe.all, diversity, lexical, pronouns)
+  ####################
+  # get the other features from text-analyzed files
   if (!file.exists(users$ta_file[i])) {
     return(NULL)
   }
   df.ta <- read_rds(users$ta_file[i]) %>%
     mutate(date_created = as_date(timestamp_created),
-           year_created = year(date_created),
-           month_created = month(date_created),
-           day_created = day(date_created))%>%
-    mutate(Q = ifelse(month_created %in% c(1:3), 1, 
-                      ifelse(month_created %in% c(4:6), 2,
-                             ifelse(month_created %in% c(7:9), 3, 4))))
-  df.ta <- inner_join(df.ta, df %>% select(timestamp_created))
-  # df.te <- read_rds(users$te_file[i])
-  # all <- inner_join(df.ta, df.te)
-  all <- df.ta
-  
-  # plot var of these embeddings vectors
-  # hist(apply(all%>%select(starts_with("V")), MARGIN = 2, FUN = function(x) var(x)) %>% as.numeric(),breaks = 100)
-  
-  
-  # file.prefix <- paste0(project.dir, "/data/derivatives/all-users/covid_valid_q_valid/all-combined/")
-  # system(paste0("mkdir -p ", file.prefix))
-  # write_rds(all, 
-  #           file = paste0(file.prefix, users$cat[i],"_user-", user, "_all.rds"), 
-  #           compress = "gz")
-  
-  tmp <- left_join(all.dates, 
-                   data.frame(table(df$date_created)) %>% 
-                     mutate(date_created=as_date(Var1))) %>%
-    mutate(Freq = ifelse(is.na(Freq), 0, Freq)) %>%
-    select(-Var1)
-  tmp.weeks <- tmp %>%
+           day_created = day(date_created)) %>%
+    filter(!grepl("https\\:", body)) %>% # drop the comments that have links, because they mess up the readability score
+    select(-c(6,8)) %>%
+    left_join(df %>% select(body, controversiality, score))
+  # get the main stats of all variables from language analysis and reddit score/controversiality
+  stats <- do.call(rbind, 
+                   lapply(df.ta[,c(6:63, 65:66)], function(x) {
+                     s <- sd(as.numeric(x), na.rm = T)
+                     summ <- as.numeric(summary(x))
+                     return(data.frame(min = summ[1],
+                                       f_Q = summ[2],
+                                       median = summ[3],
+                                       mean = summ[4],
+                                       t_Q = summ[5],
+                                       max = summ[6],
+                                       sd = s))
+                   })) %>%
+    rownames_to_column("var")
+  # make stats in a wide format
+  stats.wide <- stats %>% 
+    pivot_longer(cols = colnames(stats)[-1], names_to = "gp") %>%
+    mutate(name = paste0(var, "__", gp)) %>% select(-gp, -var) %>%
+    pivot_wider(names_from = name, values_from = value)
+  ####################
+  # look at comment frequency
+  freq <- df %>% 
+    group_by(date_created) %>%
+    dplyr::summarise(count = n()) %>%
+    full_join(all.dates) %>%
+    mutate(count = ifelse(is.na(count), 0, count)) %>%
     mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))) %>%
     group_by(week) %>%
-    dplyr::summarise(count = sum(Freq))
-  t <- data.frame(user = users$user[i],
-                  cat = users$cat[i],
-                  # sd_comment_freq = sd(table(df$date_created)),
-                  sd_comment_freq = sd(tmp.weeks$count),
-                  # mean_comment_freq = mean(table(df$date_created)),
-                  mean_comment_freq = mean(tmp.weeks$count),
-                  # ac = t(as.numeric(acf(tmp$Freq, lag.max = 108)$acf))
-                  ac_comment_freq = t(as.numeric(acf(tmp.weeks$count, lag.max = 108)$acf)),
-                  fft_comment_freq = t(fft(tmp.weeks$count)))
-  tmp2 <- left_join(all.dates  %>%
-                      mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
-                    all %>% 
-                      mutate_at(.vars = vars(nrc.positive, nrc.negative, nrc.anger, nrc.anticipation, nrc.disgust,
-                                             nrc.fear, nrc.joy, nrc.sadness, nrc.surprise, nrc.trust),
-                                .funs = function(x) x/all$sentimentr.word_count)) %>%
-    group_by(week) %>%
-    dplyr::summarise_at(.vars = vars(ends_with("_sentiment"),
-                                     "readability", 
-                                     starts_with("nrc")), 
-                        .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T)) %>%
-    ungroup()
-  # ###
-  # # combine embeddings with ful timeline
-  # # replace missing ones with 0
-  # # group by week, and get embeddings average
-  # tmp3 <- left_join(all.dates %>%
-  #                     mutate(week = c(rep(c(1:108), each = 7), rep(109, 5))),
-  #                   all %>% select(date_created, paste0("V", c(1:10)))) %>%
-  #   group_by(week) %>%
-  #   dplyr::summarise_at(.vars = vars(paste0("V", c(1:10))),
-  #                       .funs = function(x) mean(ifelse(is.na(x), 0, x), na.rm = T))
-  # # combine tmp2 for nrc and tmp3 of ambeddings
-  # tmp4 <- inner_join(tmp2, tmp3)
-  tmp4 <- tmp2
-  ###
-  acv <- foreach (j = 2:ncol(tmp4), .combine = cbind) %dopar% {
-    var <- colnames(tmp4)[j]
-    if (min(tmp4[,j]) == max(tmp4[,j])) {
-      acv.t <- data.frame(sd = 0,
-                          mean = 0,
-                          matrix(ncol = 109, nrow = 1, 0),
-                          matrix(ncol = 109, nrow = 1, 0))
-    } else {
-        acv.t <- data.frame(sd = sd(unlist(tmp4[,j])),
-                            mean = mean(unlist(tmp4[,j])),
-                            t(as.numeric(acf(unlist(tmp4[,j]), lag.max = 108)$acf)),
-                            t(fft(unlist(tmp4[,j]))))
-    }
-    colnames(acv.t) <- c(paste0("sd_", var),
-                         paste0("mean_", var),
-                         paste0("ac_", var, ".", c(1:109)),
-                         paste0("fft_", var, ".", c(1:109)))
-    return(acv.t)
-    }
-  t <- cbind(t, acv)
-  return(t)
+    dplyr::summarise(count = sum(count))
+  freq.summ <- as.numeric(summary(freq$count))
+  freq.summ <- data.frame(min = freq.summ[1],
+                          f_Q = freq.summ[2],
+                          median = freq.summ[3],
+                          mean = freq.summ[4],
+                          t_Q = freq.summ[5],
+                          max = freq.summ[6],
+                          sd = sd(freq$count))
+  colnames(freq.summ) <- paste0("freq__", colnames(freq.summ))
+  ####################
+  # combine all stats
+  all <- data.frame(user = user, cat = users$cat[i],
+                    cbind(freq.summ, stats.wide, all.qdap))
+  print(paste0("Done with user: ", i, " ", user))
+  return(all)
 }
-# write_rds(users.stats.pre, "data/derivatives/all-users/combined-covid-valid-users-ta.rds")
-# users.stats.pre <- read_rds("data/derivatives/all-users/combined-covid-valid-users-ta.rds")
+write_rds(users.stats.pre1, "data/derivatives/all-users/summary-stats-per-user-covid.rds")
+# users.stats.pre1 <- read_rds("data/derivatives/all-users/summary-stats-per-user-covid.rds")
+################################################################################
+################################################################################
+#################### compare features between both groups ######################
+################################################################################
+################################################################################
+
+
+
+
+
+
+################################################################################
+################################################################################
+#################### subreddits usage percentage by group ######################
+################################################################################
+################################################################################
+
+
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
 ######
-# fixing the error of nmh users beiung not true controls
-nmh <- read_lines("data/derivatives/identified-users/ALL-nmh-subreddits-users-with-no-comments-at-all-in-mh-subreddits")
-users.stats <- users.stats.pre %>%
-  filter(cat == "bp" | user %in% nmh)
+users.stats <- users.stats.pre
 users.stats <- users.stats[-c(3592,3217),] # possible to be bots
 # users.stats <- users.stats.pre %>% filter(q_valid == T)
-
-# p1 <- users.stats %>%
-#   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
-#   mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
-#   mutate(var = sub("ac_", "", ac_var),
-#          var = sub("\\.[0-9]+", "", var)) %>%
-#   ggplot(aes(x=ac_lag, y=acf, group = user, color = cat)) +
-#   geom_line(alpha = 0.3) +
-#   # facet_wrap(~cat) +
-#   ggh4x::facet_grid2(cols = vars(var), rows = vars(cat), scales = "free", space = "free") +
-#   scale_color_manual(values = redblu.col)
-# p2 <- users.stats %>%
-#   pivot_longer(starts_with("ac"), names_to = "ac_var", values_to = "acf") %>%
-#   mutate(ac_lag = round(readr::parse_number(str_replace_all(pattern = "\\.", replacement = "",string = ac_var)))) %>%
-#   mutate(var = sub("ac_", "", ac_var),
-#          var = sub("\\.[0-9]+", "", var)) %>%
-#   group_by(user,cat,var) %>%
-#   dplyr::summarise(avg_acf = mean(acf)) %>%
-#   ggplot(aes(x=cat, y=avg_acf, fill = cat)) +
-#   geom_violin() +
-#   ggpubr::stat_compare_means(size = 2.5) +
-#   facet_wrap(~var, nrow = 1, scales = "free") +
-#   scale_fill_manual(values = redblu.col) +
-#   geom_boxplot(width = 0.1, show.legend = F, fill = "white") +
-#   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
 p3 <- users.stats %>%
   pivot_longer(starts_with("sd"), names_to = "sd_var", values_to = "sd") %>%
   mutate(var = sub("sd_", "", sd_var),
@@ -384,7 +303,7 @@ users.stats %>%
   geom_text(size = 4) +
   labs(x="", y="number of users") +
   theme(axis.text.x.bottom = element_text(angle = 0, hjust = 0.5))
-ggsave(filename = "figs/count-of-users.png",
+ggsave(filename = "figs/count-of-users-covid-valid-q-valid.png",
 # ggsave(filename = "figs/count-of-users_q-valid.png",
        width = 4.1, height = 4.1, units = "in", bg = "white")
 users.stats %>%
