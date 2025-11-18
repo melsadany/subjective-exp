@@ -18,5 +18,7 @@ This project extracts Reddit data to identify users with bipolar disorder, colle
 ## Ethical Considerations
 
 **Anonymization**: All usernames and identifying information removed
+
 **Data Privacy**: Analysis conducted on public posts only
+
 **Research Compliance**: Follows Reddit API terms of service
